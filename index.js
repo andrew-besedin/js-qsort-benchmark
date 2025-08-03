@@ -3,48 +3,53 @@ const numbersJson = await fetch('numbers.json').then(res => res.text());
 // const numbers = await numbersJson.json();
 
 function qsort(array) {
-    const stack = new Array(array.length * 6); 
-    let sp = 0; // stack pointer
+    var stack = [];
 
-    // Push initial bounds
-    stack[sp++] = 0;
-    stack[sp++] = array.length - 1;
+    stack.push({
+        start: 0,
+        end: array.length - 1,
+    });
 
+    while (stack.length > 0) {
+        var stackTop = stack.pop();
+        var start = stackTop.start;
+        var end = stackTop.end;
 
-    while (sp > 0) {
-        const end = stack[--sp];
-        const start = stack[--sp];
+        if (start >= end) continue;
 
-        if (start < end) {
-            const pivotId = end;
-            const pivot = array[pivotId];
+        var pivotId = end;
+        var pivot = array[pivotId];
 
-            let currSwapId = start;
-            for (let i = start; i < end; i++) {
-                if (array[i] <= pivot) {
-                    const temp = array[i];
-                    array[i] = array[currSwapId];
-                    array[currSwapId] = temp;
-                    currSwapId++;
-                }
-            }
-
-            array[pivotId] = array[currSwapId];
-            array[currSwapId] = pivot;
-
-            if (currSwapId - 1 > start) {
-                // Push left
-                stack[sp++] = start;
-                stack[sp++] = currSwapId - 1;
-            }
-
-            if (currSwapId + 1 < end) {
-                // Push right
-                stack[sp++] = currSwapId + 1;
-                stack[sp++] = end;
-            }
+        var currSwapId = start;
+        for (var i = start; i < end; i++) {
+            if (array[i] > pivot) continue;
+            
+            var temp = array[i];
+            array[i] = array[currSwapId];
+            array[currSwapId] = temp;
+            currSwapId++;
         }
+
+        array[pivotId] = array[currSwapId];
+        array[currSwapId] = pivot;
+
+        if (currSwapId - 1 > start) {
+            stack.push({
+                start,
+                end: currSwapId - 1,
+            });
+        }
+        
+        if (currSwapId + 1 < end) {
+            stack.push({
+                start: currSwapId + 1,
+                end,
+            });
+        }
+        
     }
+
+    return array;
 }
 
 async function getAverageTime(repeatTimes) {
